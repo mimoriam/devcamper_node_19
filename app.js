@@ -1,3 +1,5 @@
+// npm install --save-dev nodemon
+
 const createError = require('http-errors');
 const express = require('express');
 const dotenv = require('dotenv');
