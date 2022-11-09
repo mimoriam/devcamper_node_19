@@ -1,4 +1,5 @@
 // npm install --save-dev nodemon
+// npm i mongoose
 
 const createError = require('http-errors');
 const express = require('express');
@@ -6,12 +7,16 @@ const dotenv = require('dotenv');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const connectToDB = require('./config/db');
 
 // Route files:
 const bootcampRouter = require('./routes/bootcamps');
 
 // Load env vars:
 dotenv.config({path: './config/config.env'});
+
+// Connect to mongodb:
+connectToDB().then();
 
 const app = express();
 
