@@ -7,6 +7,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const errorHandler = require('./middleware/error');
 const connectToDB = require('./config/db');
 
 // Route files:
@@ -32,6 +33,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Mount Routers:
 app.use('/api/v1/bootcamps', bootcampRouter);
+
+// Use Error Handler:
+app.use(errorHandler);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
