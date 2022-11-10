@@ -12,11 +12,11 @@ const logger = require('morgan');
 const errorHandler = require('./middleware/error');
 const connectToDB = require('./config/db');
 
-// Route files:
-const bootcampRouter = require('./routes/bootcamps');
-
 // Load env vars:
 dotenv.config({path: './config/config.env'});
+
+// Route files:
+const bootcampRouter = require('./routes/bootcamps');
 
 // Connect to mongodb:
 connectToDB().then();
