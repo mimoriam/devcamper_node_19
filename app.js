@@ -1,6 +1,7 @@
 // npm install --save-dev nodemon
 // npm i mongoose
 // npm i slugify
+// npm i node-geocoder
 
 const createError = require('http-errors');
 const express = require('express');
