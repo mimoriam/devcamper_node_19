@@ -2,6 +2,7 @@
 // npm i mongoose
 // npm i slugify
 // npm i node-geocoder
+// node seeder -i or -d
 
 const createError = require('http-errors');
 const express = require('express');
