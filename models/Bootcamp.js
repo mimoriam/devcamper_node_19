@@ -138,4 +138,12 @@ BootcampSchema.virtual('courses', {
     justOne: false
 });
 
+// Cascade delete courses when Bootcamp is deleted:
+BootcampSchema.pre('remove', async function (next) {
+    await this.model('Course').deleteMany({
+        bootcamp: this._id
+    });
+    next();
+});
+
 module.exports = mongoose.model('Bootcamp', BootcampSchema);
