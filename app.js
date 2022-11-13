@@ -5,6 +5,7 @@
 // node seeder -i or -d
 // npm i express-fileupload
 // npm i jsonwebtoken bcryptjs
+// npm i nodemailer
 
 const createError = require('http-errors');
 const express = require('express');
