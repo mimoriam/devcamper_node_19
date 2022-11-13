@@ -4,6 +4,7 @@
 // npm i node-geocoder
 // node seeder -i or -d
 // npm i express-fileupload
+// npm i jsonwebtoken bcryptjs
 
 const createError = require('http-errors');
 const express = require('express');
@@ -21,6 +22,7 @@ dotenv.config({path: './config/config.env'});
 // Route files:
 const bootcampRouter = require('./routes/bootcamps');
 const courseRouter = require('./routes/courses');
+const authRouter = require('./routes/auth');
 
 // Connect to mongodb:
 connectToDB().then();
@@ -43,6 +45,7 @@ app.use(fileupload({}));
 // Mount Routers:
 app.use('/api/v1/bootcamps', bootcampRouter);
 app.use('/api/v1/courses', courseRouter);
+app.use('/api/v1/auth', authRouter);
 
 // Use Error Handler:
 app.use(errorHandler);
