@@ -13,20 +13,14 @@ exports.register = asyncHandler(async (req, res, next) => {
         name, email, password, role
     });
 
-    // Create token by using function from User Model:
-    const token = user.getSignedJwtToken();
-
-    res.status(200).json({
-        success: true,
-        token: token
-    });
+    sendTokenResponse(user, 200, res);
 });
 
 // @desc      Login user
 // @route     POST /api/v1/auth/login
 // @access    Public
 exports.login = asyncHandler(async (req, res, next) => {
-    const { email, password } = req.body;
+    const {email, password} = req.body;
 
     // Validate emil & password
     if (!email || !password) {
@@ -34,7 +28,7 @@ exports.login = asyncHandler(async (req, res, next) => {
     }
 
     // Check for user
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({email}).select('+password');
 
     if (!user) {
         return next(new ErrorResponse('Invalid credentials', 401));
@@ -47,11 +41,27 @@ exports.login = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Invalid credentials', 401));
     }
 
-    // Create token by using function from User Model:
+    sendTokenResponse(user, 200, res);
+});
+
+// Get token from model, create cookie and send response
+const sendTokenResponse = (user, statusCode, res) => {
+    // Create token
     const token = user.getSignedJwtToken();
 
-    res.status(200).json({
+    const options = {
+        expires: new Date(
+            Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000,
+        ),
+        httpOnly: true,
+    };
+
+    if (process.env.NODE_ENV === 'production') {
+        options.secure = true;
+    }
+
+    res.status(statusCode).cookie('token', token, options).json({
         success: true,
-        token: token
+        token,
     });
-});
+};
