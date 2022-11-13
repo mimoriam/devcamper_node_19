@@ -25,13 +25,29 @@ exports.getBootcamp = asyncHandler(async (req, res, next) => {
         );
     }
 
-    res.status(200).json({success: true, data: bootcamp});
+    res.status(200).json({ success: true, data: bootcamp });
 });
 
 // @desc      Create new bootcamp
 // @route     POST /api/v1/bootcamps
 // @access    Private
 exports.createBootcamp = asyncHandler(async (req, res, next) => {
+    // Add User to body:
+    req.body.user = req.user.id;
+
+    // Check for published bootcamp
+    const publishedBootcamp = await Bootcamp.findOne({ user: req.user.id });
+
+    // If the user is not an admin, they can only add one bootcamp
+    if (publishedBootcamp && req.user.role !== 'admin') {
+        return next(
+            new ErrorResponse(
+                `The user with ID ${req.user.id} has already published a bootcamp`,
+                400
+            )
+        );
+    }
+
     const bootcamp = await Bootcamp.create(req.body);
 
     res.status(201).json({
@@ -98,7 +114,7 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
 
     await bootcamp.remove();
 
-    res.status(200).json({success: true, data: {}});
+    res.status(200).json({ success: true, data: {} });
 
 });
 
@@ -106,7 +122,7 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/bootcamps/radius/:zipcode/:distance
 // @access    Private
 exports.getBootcampsInRadius = asyncHandler(async (req, res, next) => {
-    const {zipcode, distance} = req.params;
+    const { zipcode, distance } = req.params;
 
     // Get lat/lng from geocoder
     const loc = await geocoder.geocode(zipcode);
@@ -119,7 +135,7 @@ exports.getBootcampsInRadius = asyncHandler(async (req, res, next) => {
     const radius = distance / 3963;
 
     const bootcamps = await Bootcamp.find({
-        location: {$geoWithin: {$centerSphere: [[lng, lat], radius]}}
+        location: { $geoWithin: { $centerSphere: [[lng, lat], radius] } }
     });
 
     res.status(200).json({
@@ -172,7 +188,7 @@ exports.bootcampPhotoUpload = asyncHandler(async (req, res, next) => {
             return next(new ErrorResponse(`Problem with file upload`, 500));
         }
 
-        await Bootcamp.findByIdAndUpdate(req.params.id, {photo: file.name});
+        await Bootcamp.findByIdAndUpdate(req.params.id, { photo: file.name });
 
         res.status(200).json({
             success: true,
