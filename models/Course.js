@@ -36,6 +36,11 @@ const CourseSchema = new mongoose.Schema({
         ref: 'Bootcamp',
         required: true
     },
+    user: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+        required: true
+    },
     // user: {
     //     type: mongoose.Schema.ObjectId,
     //     ref: 'User',
@@ -47,12 +52,12 @@ const CourseSchema = new mongoose.Schema({
 CourseSchema.statics.getAverageCost = async function (bootcampId) {
     const obj = await this.aggregate([
         {
-            $match: {bootcamp: bootcampId}
+            $match: { bootcamp: bootcampId }
         },
         {
             $group: {
                 _id: '$bootcamp',
-                averageCost: {$avg: '$tuition'}
+                averageCost: { $avg: '$tuition' }
             }
         }
     ]);
