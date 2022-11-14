@@ -15,6 +15,10 @@ const { protect, authorize } = require("../middleware/auth");
 const courseRouter = require('./courses');
 router.use('/:bootcampId/courses', courseRouter);
 
+// Include review router for path: /api/v1/bootcamps/:bootcampId/reviews
+const reviewRouter = require('./reviews');
+router.use('/:bootcampId/reviews', reviewRouter);
+
 router.route('/')
     .get(advancedResults(Bootcamp, 'courses'), getBootcamps)
     .post(protect, authorize('publisher', 'admin'), createBootcamp);
