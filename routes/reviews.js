@@ -6,7 +6,7 @@ const router = express.Router({ mergeParams: true });
 
 const advancedResults = require('../middleware/advancedResults');
 const { protect, authorize } = require('../middleware/auth');
-const { getReviews, getReview, addReview } = require("../controllers/reviews");
+const { getReviews, getReview, addReview, deleteReview, updateReview } = require("../controllers/reviews");
 
 router.route('/').get(advancedResults(Review, {
         path: 'bootcamp',
@@ -17,6 +17,8 @@ router.route('/').get(advancedResults(Review, {
 
 router
     .route('/:id')
-    .get(getReview);
+    .get(getReview)
+    .put(protect, authorize('user', 'admin'), updateReview)
+    .delete(protect, authorize('user', 'admin'), deleteReview);
 
 module.exports = router;
