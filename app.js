@@ -18,13 +18,14 @@ const errorHandler = require('./middleware/error');
 const connectToDB = require('./config/db');
 
 // Load env vars:
-dotenv.config({path: './config/config.env'});
+dotenv.config({ path: './config/config.env' });
 
 // Route files:
 const bootcampRouter = require('./routes/bootcamps');
 const courseRouter = require('./routes/courses');
 const authRouter = require('./routes/auth');
 const userRouter = require('./routes/users');
+const reviewRouter = require('./routes/reviews');
 
 // Connect to mongodb:
 connectToDB().then();
@@ -39,7 +40,7 @@ if (process.env.NODE_ENV === 'development') {
     app.use(logger('dev'));
 }
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -51,6 +52,7 @@ app.use('/api/v1/bootcamps', bootcampRouter);
 app.use('/api/v1/courses', courseRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // Use Error Handler:
 app.use(errorHandler);
