@@ -3,7 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "nodemon ./bin/www",
+    "pm2": "pm2 start ./bin/www",
+    "pm2_reload": "pm2 reload www",
+    "pm2_stop": "pm2 stop www",
+    "pm2_stop_all": "pm2 stop all",
+    "pm2_delete": "pm2 delete www",
+
+    "pm2_list": "pm2 ls",
+    "pm2_logs": "pm2 logs",
+    "pm2_monitor": "pm2 monit",
+    "pm2_web_dashboard": "pm2 plus"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

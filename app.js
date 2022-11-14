@@ -15,6 +15,9 @@
 // npm i hpp
 // npm i cors
 
+// Deployment:
+// npm i -g pm2
+
 const createError = require('http-errors');
 const express = require('express');
 const dotenv = require('dotenv');
