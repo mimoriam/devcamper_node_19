@@ -92,3 +92,11 @@ process.on('unhandledRejection', (err, promise) => {
     // Close server & exit process
     // server.close(() => process.exit(1));
 });
+
+// The process manager you’re using will first send a SIGTERM signal to the application to notify it that it will be killed
+process.on('SIGTERM', () => {
+    debug('SIGTERM signal received: closing HTTP server')
+    server.close(() => {
+        debug('HTTP server closed')
+    })
+})
