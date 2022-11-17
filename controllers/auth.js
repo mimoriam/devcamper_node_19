@@ -185,6 +185,46 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
     sendTokenResponse(user, 200, res);
 });
 
+/**
+ * @desc    Confirm Email
+ * @route   GET /api/v1/auth/confirmemail
+ * @access  Public
+ */
+exports.confirmEmail = asyncHandler(async (req, res, next) => {
+    // grab token from email
+    const { token } = req.query;
+
+    if (!token) {
+        return next(new ErrorResponse('Invalid Token', 400));
+    }
+
+    const splitToken = token.split('.')[0];
+    const confirmEmailToken = crypto
+        .createHash('sha256')
+        .update(splitToken)
+        .digest('hex');
+
+    // get user by token
+    const user = await User.findOne({
+        confirmEmailToken,
+        isEmailConfirmed: false,
+    });
+
+    if (!user) {
+        return next(new ErrorResponse('Invalid Token', 400));
+    }
+
+    // update confirmed to true
+    user.confirmEmailToken = undefined;
+    user.isEmailConfirmed = true;
+
+    // save
+    user.save({ validateBeforeSave: false });
+
+    // return token
+    sendTokenResponse(user, 200, res);
+});
+
 // Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
     // Create token
