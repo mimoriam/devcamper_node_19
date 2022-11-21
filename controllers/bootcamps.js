@@ -4,6 +4,36 @@ const asyncHandler = require('../middleware/async');
 const geocoder = require('../utils/geocoder');
 const path = require("path");
 
+// Multer:
+const multer = require('multer');
+
+const multerStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/uploads');
+    },
+    filename: (req, file, cb) => {
+        // user-{user_ID}-{timestamp}.jpeg
+        const ext = file.mimetype.split('/')[1];
+        cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+    },
+});
+
+const multerFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith('image')) {
+        cb(null, true);
+    } else {
+        cb(new ErrorResponse(`Please upload an image file`, 400), false);
+    }
+};
+
+const upload = multer({
+    storage: multerStorage,
+    limits: { fileSize: 1000000 }, // 1 MiB
+    fileFilter: multerFilter
+});
+
+exports.uploadViaMulter = upload.single('photo');
+
 // @desc      Get all bootcamps
 // @route     GET /api/v1/bootcamps
 // @access    Public
@@ -205,5 +235,37 @@ exports.bootcampPhotoUpload = asyncHandler(async (req, res, next) => {
             data: file.name
         });
 
+    });
+});
+
+// @desc      Upload photo for bootcamp using Multer
+// @route     PUT /api/v1/bootcamps/:id/multer
+// @access    Private
+exports.bootcampMulterUpload = asyncHandler(async (req, res, next) => {
+    const bootcamp = await Bootcamp.findById(req.params.id);
+
+    if (!bootcamp) {
+        return next(
+            new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
+        );
+    }
+
+    // Make sure user is bootcamp owner
+    if (bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(
+            new ErrorResponse(
+                `User ${req.user.id} is not authorized to update this bootcamp`,
+                401
+            )
+        );
+    }
+
+    const file = req.file;
+
+    await Bootcamp.findByIdAndUpdate(req.params.id, { photo: file.filename });
+
+    res.status(200).json({
+        success: true,
+        file: file.filename
     });
 });

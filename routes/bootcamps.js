@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
     getBootcamps, getBootcamp, createBootcamp, updateBootcamp, deleteBootcamp, getBootcampsInRadius,
-    bootcampPhotoUpload
+    bootcampPhotoUpload, bootcampMulterUpload, uploadViaMulter
 } = require("../controllers/bootcamps");
 
 const Bootcamp = require('../models/Bootcamp');
@@ -31,7 +31,9 @@ router.route('/:id')
 router.route('/radius/:zipcode/:distance')
     .get(getBootcampsInRadius);
 
-router.route('/:id/photo')
-    .put(protect, authorize('publisher', 'admin'), bootcampPhotoUpload);
+// router.route('/:id/photo')
+//     .put(protect, authorize('publisher', 'admin'), bootcampPhotoUpload);
+
+router.route('/:id/multer').put(protect, authorize('publisher', 'admin'), uploadViaMulter, bootcampMulterUpload);
 
 module.exports = router;

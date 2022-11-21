@@ -15,6 +15,9 @@
 // npm i hpp
 // npm i cors
 
+// Image upload using Multer instead of express-fileupload:
+// npm i multer
+
 // Deployment:
 // npm i -g pm2
 
@@ -33,7 +36,7 @@ const hpp = require('hpp');
 const cors = require('cors');
 
 const logger = require('morgan');
-const fileupload = require('express-fileupload');
+// const fileupload = require('express-fileupload');
 const errorHandler = require('./middleware/error');
 const connectToDB = require('./config/db');
 
@@ -65,7 +68,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Express-fileupload:
-app.use(fileupload({}));
+// app.use(fileupload({}));
 
 // Reduce Fingerprinting:
 app.disable('x-powered-by')
