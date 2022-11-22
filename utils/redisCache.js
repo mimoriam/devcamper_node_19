@@ -47,8 +47,8 @@ mongoose.Query.prototype.exec = async function () {
     // Otherwise use the original MongoDB query and store the result in Redis after:
     const result = await exec.apply(this, arguments);
 
-    // 100 seconds cache expiry:
-    client.hSet(this.hashKey, key, JSON.stringify(result), 'EX', 100);
+    // 1 day (in seconds) cache expiry:
+    client.hSet(this.hashKey, key, JSON.stringify(result), 'EX', 86400);
 
     return result;
 }
