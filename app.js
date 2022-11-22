@@ -49,6 +49,9 @@ const connectToDB = require('./config/db');
 // Load env vars:
 dotenv.config({ path: './config/config.env' });
 
+// Redis Utility:
+require('./utils/redisCache');
+
 // Passport files:
 const passport = require('passport');
 const session = require('express-session');

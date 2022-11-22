@@ -7,6 +7,9 @@ const path = require("path");
 // Multer:
 const multer = require('multer');
 
+// Clean Redis Cache on certain actions:
+const { clearHash } = require("../utils/redisCache");
+
 const multerStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'public/uploads');
@@ -45,32 +48,9 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 
 // @desc      Get single bootcamp
 // @route     GET /api/v1/bootcamps/:id
-// @access    Public
+// @access    Public (Made Private for testing - remove Protect middleware in route to make it public again)
 exports.getBootcamp = asyncHandler(async (req, res, next) => {
-
-    const redis = require('redis');
-    const redisUrl = 'redis://127.0.0.1:6379';
-    const client = redis.createClient(redisUrl);
-
-    client.on('error', (err) => console.log('Redis Client Error', err));
-
-    await client.connect();
-
-    // Persist a Redis Cache Server before the query hits the Database:
-    // First, check to see if we have any cached data related to the query:
-    // console.log(req.user)
-    const cachedBootcamps = await client.get(req.params.id);
-
-    // If cached data exists, return it instead of querying the DB:
-    if (cachedBootcamps) {
-        console.log("Serving from Cache!");
-        return res.status(200).json({
-            success: true,
-            data: JSON.parse(cachedBootcamps)
-        });
-    }
-
-    const bootcamp = await Bootcamp.findById(req.params.id);
+    const bootcamp = await Bootcamp.findById(req.params.id).cache({ key: req.user.id });
 
     if (!bootcamp) {
         return next(
@@ -79,9 +59,6 @@ exports.getBootcamp = asyncHandler(async (req, res, next) => {
     }
 
     res.status(200).json({ success: true, data: bootcamp });
-
-    // Save the query result to cache to return it via Redis in case route gets hit again:
-    await client.set(req.params.id, JSON.stringify(bootcamp));
 });
 
 // @desc      Create new bootcamp
@@ -105,6 +82,9 @@ exports.createBootcamp = asyncHandler(async (req, res, next) => {
     }
 
     const bootcamp = await Bootcamp.create(req.body);
+
+    // clean Redis Cache on Bootcamp creation:
+    clearHash(req.user.id);
 
     res.status(201).json({
         success: true,
@@ -169,6 +149,9 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
     }
 
     await bootcamp.remove();
+
+    // clean Redis Cache on Bootcamp deletion:
+    clearHash(req.user.id);
 
     res.status(200).json({ success: true, data: {} });
 
