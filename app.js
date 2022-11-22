@@ -18,6 +18,9 @@
 // Image upload using Multer instead of express-fileupload:
 // npm i multer
 
+// Passport authentication (Google, Facebook, Twitter, GitHub etc.):
+// npm i passport passport-github2 express-session
+
 // Deployment:
 // npm i -g pm2
 
@@ -43,6 +46,30 @@ const connectToDB = require('./config/db');
 // Load env vars:
 dotenv.config({ path: './config/config.env' });
 
+// Passport files:
+const passport = require('passport');
+const session = require('express-session');
+const GitHubStrategy = require('passport-github2');
+
+passport.serializeUser((user, cb) => {
+    cb(null, user);
+});
+
+passport.deserializeUser((user, cb) => {
+    cb(null, user);
+});
+
+passport.use(new GitHubStrategy({
+        clientID: process.env.GITHUB_C,
+        clientSecret: process.env.GITHUB_S,
+        callbackURL: "http://localhost:3000/api/v1/auth/github"
+    },
+    function (accessToken, refreshToken, profile, cb) {
+        // console.log(profile);
+        return cb(null, profile);
+    }
+));
+
 // Route files:
 const bootcampRouter = require('./routes/bootcamps');
 const courseRouter = require('./routes/courses');
@@ -54,6 +81,23 @@ const reviewRouter = require('./routes/reviews');
 connectToDB().then();
 
 const app = express();
+
+app.set('trust proxy', 1);
+
+// Express session code for using it for Redis Cache or MongoStore:
+// https://github.com/expressjs/session/blob/master/README.md#compatible-session-stores
+app.use(session({
+    secret: 'aaaaa',
+    resave: false,
+    saveUninitialized: true,
+    // store: new RedisStore(),
+
+    // Enable this option in production:
+    // cookie: { secure: true, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
