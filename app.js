@@ -21,6 +21,9 @@
 // Passport authentication (Google, Facebook, Twitter, GitHub etc.):
 // npm i passport passport-github2 express-session
 
+// Redis Cache:
+// npm i redis
+
 // Deployment:
 // npm i -g pm2
 

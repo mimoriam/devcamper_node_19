@@ -47,6 +47,29 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/bootcamps/:id
 // @access    Public
 exports.getBootcamp = asyncHandler(async (req, res, next) => {
+
+    const redis = require('redis');
+    const redisUrl = 'redis://127.0.0.1:6379';
+    const client = redis.createClient(redisUrl);
+
+    client.on('error', (err) => console.log('Redis Client Error', err));
+
+    await client.connect();
+
+    // Persist a Redis Cache Server before the query hits the Database:
+    // First, check to see if we have any cached data related to the query:
+    // console.log(req.user)
+    const cachedBootcamps = await client.get(req.params.id);
+
+    // If cached data exists, return it instead of querying the DB:
+    if (cachedBootcamps) {
+        console.log("Serving from Cache!");
+        return res.status(200).json({
+            success: true,
+            data: JSON.parse(cachedBootcamps)
+        });
+    }
+
     const bootcamp = await Bootcamp.findById(req.params.id);
 
     if (!bootcamp) {
@@ -56,6 +79,9 @@ exports.getBootcamp = asyncHandler(async (req, res, next) => {
     }
 
     res.status(200).json({ success: true, data: bootcamp });
+
+    // Save the query result to cache to return it via Redis in case route gets hit again:
+    await client.set(req.params.id, JSON.stringify(bootcamp));
 });
 
 // @desc      Create new bootcamp
