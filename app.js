@@ -145,7 +145,11 @@ app.use(limiter);
 app.use(hpp());
 
 // Enable CORS
-app.use(cors());
+// Cors options to enable cookie + communication on frontend:
+app.use(cors({
+    origin: ['http://localhost:8000'],
+    credentials: true
+}));
 
 // Mount Routers:
 app.use('/api/v1/bootcamps', bootcampRouter);

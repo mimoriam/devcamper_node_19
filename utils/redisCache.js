@@ -3,7 +3,7 @@ const redis = require('redis');
 const redisUrl = 'redis://127.0.0.1:6379';
 const client = redis.createClient(redisUrl);
 
-client.on('error', (err) => console.log('Redis Client Error', err));
+client.on('error', (err) => console.log('Redis Client: ', err));
 client.connect().then();
 
 const exec = mongoose.Query.prototype.exec;
